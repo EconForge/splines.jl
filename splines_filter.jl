@@ -1,3 +1,17 @@
+function filter_coeffs(smin,smax,orders,data)
+
+    dinv = (smax - smin)/(orders-1)
+    d = length(smin)
+    if d == 1
+        coeffs = filter_coeffs_1d(dinv,data)
+    elseif d == 2
+        coeffs = filter_coeffs_2d(dinv,data)
+    else
+        error()
+    end
+    return coeffs
+end
+
 function find_coefs_1d(delta_inv, M, data)
 
     # args: double, int, double[:], double[:
@@ -59,47 +73,52 @@ function filter_coeffs_2d(dinv, data)
 
     # First, solve in the X-direction
     for iy in 1:My
-        coefs[:,iy] = find_coefs_1d(dinv[1], Mx, data[:,iy])
+        coefs[:,iy+1] = find_coefs_1d(dinv[1], Mx, data[:,iy])
     end
 
     # Now, solve in the Y-direction
     for ix in 1:Nx
-        coefs[ix,:] =find_coefs_1d(dinv[2], My, coefs[ix,:])
+        coefs[ix,:] = find_coefs_1d(dinv[2], My, coefs[ix,:])
     end
 
     return coefs
 
 end
 
-#function filter_coeffs_3d(double[:] dinv, double[:,:,:] data):
+function filter_coeffs_3d(dinv, data)
 
-#    cdef int Mx = data.shape[0]
-#    cdef int My = data.shape[1]
-#    cdef int Mz = data.shape[2]
+    Mx = size(data,1)
+    My = size(data,2)
+    Mz = size(data,3)
+    
+    Nx = Mx+2
+    Ny = My+2
+    Nz = Mz+2
 
-#    cdef int Nx = Mx+2
-#    cdef int Ny = My+2
-#    cdef int Nz = Mz+2
+    coefs = zeros(Nx,Ny,Nz)
 
-#    cdef double [:,:,:] coefs = np.zeros((Nx,Ny,Nz))
 
-#    cdef int iy, ix, iz
+    # First, solve in the X-direction
+    for iy in 1:My
+        for iz in 1:Mz
+            coefs[:,iy+1,iz+1] = find_coefs_1d(dinv[1], Mx, data[:,iy,iz])
+        end
+    end
 
-#    # First, solve in the X-direction
-#    for iy in range(My):
-#        for iz in range(Mz):
-#            find_coefs_1d(dinv[0], Mx, data[:,iy,iz], coefs[:,iy,iz])
+    # Now, solve in the Y-direction
+    for ix in 1:Nx
+        for iz in 1:Mz
+            ccoefs[ix,:,iz+1] = find_coefs_1d(dinv[2], My, coefs[ix,:,iz])
+        end
+    end
 
-#    # Now, solve in the Y-direction
-#    for ix in range(Nx):
-#        for iz in range(Mz):
-#            find_coefs_1d(dinv[1], My, coefs[ix,:,iz], coefs[ix,:,iz])
+    # Now, solve in the Z-direction
+    for ix in 1:Nx
+        for iy in 1:Ny
+            ccoefs[ix,iy,:] = find_coefs_1d(dinv[2], Mz, coefs[ix,iy,:])
+        end
+    end
 
-#    # Now, solve in the Z-direction
-#    for ix in range(Nx):
-#        for iy in range(Ny):
-#            find_coefs_1d(dinv[2], Mz, coefs[ix,iy,:], coefs[ix,iy,:])
+    return coefs
 
-#    return coefs
-
-#end
+end

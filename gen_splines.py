@@ -24,12 +24,12 @@ for order in range(max_order+1):
 
 import tempita
 
-with file('splines.jl.in') as f:
+with file('csplines.jl.in') as f:
     txt = f.read()
 
 s = tempita.sub(txt,values=values,dvalues=dvalues,max_order=max_order)
 
-with file('splines.jl','w') as f:
+with file('csplines.jl','w') as f:
     f.write(s)
 #print(s)
 
