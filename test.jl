@@ -2,9 +2,10 @@ using splines
 
 
 print("\n1D interpolation\n\n")
-orders = [6]
+orders = [100]
 smin = [0.0]
 smax = [1.0]
+N_tries = 10
 
 f(x) = sin(x*10)
 # 1d test
@@ -16,12 +17,20 @@ M = length(a)
 
 coefs = filter_coeffs(smin,smax,orders,b)
 
-s = linspace(-0.5,1.5,100)
+#s = linspace(-0.1,1.1,100000)
+s = linspace(0.01,0.99,100000)
 
 interp_values = eval_UBspline(smin,smax,orders,coefs,s)
+
+tic()
+for i = 1:N_tries
+    interp_values = eval_UBspline(smin,smax,orders,coefs,s)
+end
+
 true_values = f(s)
 
 print("Maximum interpolation error : ", norm(true_values-interp_values,Inf),"\n")
+toc()
 
 #using PyPlot
 #plot(s,sol)

@@ -29,13 +29,13 @@ function eval_UBspline(smin, smax, orders, coefs, svec)
     vals = zeros(N)
 
     if d == 1
-        eval_UBspline_1d(smin, smax, orders, coefs, svec, vals)
+        eval_UBspline_1d(smin, smax, orders, coefs, svec, vals, A44d, dA44d)
     elseif d == 2
-        eval_UBspline_2d(smin, smax, orders, coefs, svec, vals)
+        eval_UBspline_2d(smin, smax, orders, coefs, svec, vals, A44d, dA44d)
     elseif d == 3
-        eval_UBspline_3d(smin, smax, orders, coefs, svec, vals)
+        eval_UBspline_3d(smin, smax, orders, coefs, svec, vals, A44d, dA44d)
     elseif d == 4
-        eval_UBspline_4d(smin, smax, orders, coefs, svec, vals)
+        eval_UBspline_4d(smin, smax, orders, coefs, svec, vals, A44d, dA44d)
     end
 
     return vals
@@ -45,7 +45,7 @@ end
 @zero_index begin
 
 
-function eval_UBspline_1d( smin, smax, orders, coefs, svec, vals)
+function eval_UBspline_1d( smin, smax, orders, C, svec, vals, Ad, dAd)
         
         
     M0 = orders[0]
@@ -54,11 +54,6 @@ function eval_UBspline_1d( smin, smax, orders, coefs, svec, vals)
                     
        
     N = size(svec,1)
-
-    Ad = A44d
-    dAd = dA44d
-
-    C = coefs
 
     for n=0:N-1
 
@@ -91,12 +86,10 @@ function eval_UBspline_1d( smin, smax, orders, coefs, svec, vals)
 
     end
 
-    return vals
-
 end
 
 
-function eval_UBspline_2d( smin, smax, orders, coefs, svec, vals)
+function eval_UBspline_2d( smin, smax, orders, C, svec, vals, Ad, dAd)
         
         
     M0 = orders[0]
@@ -108,11 +101,6 @@ function eval_UBspline_2d( smin, smax, orders, coefs, svec, vals)
                     
        
     N = size(svec,1)
-
-    Ad = A44d
-    dAd = dA44d
-
-    C = coefs
 
     for n=0:N-1
 
@@ -169,12 +157,10 @@ function eval_UBspline_2d( smin, smax, orders, coefs, svec, vals)
 
     end
 
-    return vals
-
 end
 
 
-function eval_UBspline_3d( smin, smax, orders, coefs, svec, vals)
+function eval_UBspline_3d( smin, smax, orders, C, svec, vals, Ad, dAd)
         
         
     M0 = orders[0]
@@ -189,11 +175,6 @@ function eval_UBspline_3d( smin, smax, orders, coefs, svec, vals)
                     
        
     N = size(svec,1)
-
-    Ad = A44d
-    dAd = dA44d
-
-    C = coefs
 
     for n=0:N-1
 
@@ -274,12 +255,10 @@ function eval_UBspline_3d( smin, smax, orders, coefs, svec, vals)
 
     end
 
-    return vals
-
 end
 
 
-function eval_UBspline_4d( smin, smax, orders, coefs, svec, vals)
+function eval_UBspline_4d( smin, smax, orders, C, svec, vals, Ad, dAd)
         
         
     M0 = orders[0]
@@ -297,11 +276,6 @@ function eval_UBspline_4d( smin, smax, orders, coefs, svec, vals)
                     
        
     N = size(svec,1)
-
-    Ad = A44d
-    dAd = dA44d
-
-    C = coefs
 
     for n=0:N-1
 
@@ -405,8 +379,6 @@ function eval_UBspline_4d( smin, smax, orders, coefs, svec, vals)
             vals[n] = Phi0_0*(Phi1_0*(Phi2_0*(Phi3_0*(C[i0+0,i1+0,i2+0,i3+0]) + Phi3_1*(C[i0+0,i1+0,i2+0,i3+1]) + Phi3_2*(C[i0+0,i1+0,i2+0,i3+2]) + Phi3_3*(C[i0+0,i1+0,i2+0,i3+3])) + Phi2_1*(Phi3_0*(C[i0+0,i1+0,i2+1,i3+0]) + Phi3_1*(C[i0+0,i1+0,i2+1,i3+1]) + Phi3_2*(C[i0+0,i1+0,i2+1,i3+2]) + Phi3_3*(C[i0+0,i1+0,i2+1,i3+3])) + Phi2_2*(Phi3_0*(C[i0+0,i1+0,i2+2,i3+0]) + Phi3_1*(C[i0+0,i1+0,i2+2,i3+1]) + Phi3_2*(C[i0+0,i1+0,i2+2,i3+2]) + Phi3_3*(C[i0+0,i1+0,i2+2,i3+3])) + Phi2_3*(Phi3_0*(C[i0+0,i1+0,i2+3,i3+0]) + Phi3_1*(C[i0+0,i1+0,i2+3,i3+1]) + Phi3_2*(C[i0+0,i1+0,i2+3,i3+2]) + Phi3_3*(C[i0+0,i1+0,i2+3,i3+3]))) + Phi1_1*(Phi2_0*(Phi3_0*(C[i0+0,i1+1,i2+0,i3+0]) + Phi3_1*(C[i0+0,i1+1,i2+0,i3+1]) + Phi3_2*(C[i0+0,i1+1,i2+0,i3+2]) + Phi3_3*(C[i0+0,i1+1,i2+0,i3+3])) + Phi2_1*(Phi3_0*(C[i0+0,i1+1,i2+1,i3+0]) + Phi3_1*(C[i0+0,i1+1,i2+1,i3+1]) + Phi3_2*(C[i0+0,i1+1,i2+1,i3+2]) + Phi3_3*(C[i0+0,i1+1,i2+1,i3+3])) + Phi2_2*(Phi3_0*(C[i0+0,i1+1,i2+2,i3+0]) + Phi3_1*(C[i0+0,i1+1,i2+2,i3+1]) + Phi3_2*(C[i0+0,i1+1,i2+2,i3+2]) + Phi3_3*(C[i0+0,i1+1,i2+2,i3+3])) + Phi2_3*(Phi3_0*(C[i0+0,i1+1,i2+3,i3+0]) + Phi3_1*(C[i0+0,i1+1,i2+3,i3+1]) + Phi3_2*(C[i0+0,i1+1,i2+3,i3+2]) + Phi3_3*(C[i0+0,i1+1,i2+3,i3+3]))) + Phi1_2*(Phi2_0*(Phi3_0*(C[i0+0,i1+2,i2+0,i3+0]) + Phi3_1*(C[i0+0,i1+2,i2+0,i3+1]) + Phi3_2*(C[i0+0,i1+2,i2+0,i3+2]) + Phi3_3*(C[i0+0,i1+2,i2+0,i3+3])) + Phi2_1*(Phi3_0*(C[i0+0,i1+2,i2+1,i3+0]) + Phi3_1*(C[i0+0,i1+2,i2+1,i3+1]) + Phi3_2*(C[i0+0,i1+2,i2+1,i3+2]) + Phi3_3*(C[i0+0,i1+2,i2+1,i3+3])) + Phi2_2*(Phi3_0*(C[i0+0,i1+2,i2+2,i3+0]) + Phi3_1*(C[i0+0,i1+2,i2+2,i3+1]) + Phi3_2*(C[i0+0,i1+2,i2+2,i3+2]) + Phi3_3*(C[i0+0,i1+2,i2+2,i3+3])) + Phi2_3*(Phi3_0*(C[i0+0,i1+2,i2+3,i3+0]) + Phi3_1*(C[i0+0,i1+2,i2+3,i3+1]) + Phi3_2*(C[i0+0,i1+2,i2+3,i3+2]) + Phi3_3*(C[i0+0,i1+2,i2+3,i3+3]))) + Phi1_3*(Phi2_0*(Phi3_0*(C[i0+0,i1+3,i2+0,i3+0]) + Phi3_1*(C[i0+0,i1+3,i2+0,i3+1]) + Phi3_2*(C[i0+0,i1+3,i2+0,i3+2]) + Phi3_3*(C[i0+0,i1+3,i2+0,i3+3])) + Phi2_1*(Phi3_0*(C[i0+0,i1+3,i2+1,i3+0]) + Phi3_1*(C[i0+0,i1+3,i2+1,i3+1]) + Phi3_2*(C[i0+0,i1+3,i2+1,i3+2]) + Phi3_3*(C[i0+0,i1+3,i2+1,i3+3])) + Phi2_2*(Phi3_0*(C[i0+0,i1+3,i2+2,i3+0]) + Phi3_1*(C[i0+0,i1+3,i2+2,i3+1]) + Phi3_2*(C[i0+0,i1+3,i2+2,i3+2]) + Phi3_3*(C[i0+0,i1+3,i2+2,i3+3])) + Phi2_3*(Phi3_0*(C[i0+0,i1+3,i2+3,i3+0]) + Phi3_1*(C[i0+0,i1+3,i2+3,i3+1]) + Phi3_2*(C[i0+0,i1+3,i2+3,i3+2]) + Phi3_3*(C[i0+0,i1+3,i2+3,i3+3])))) + Phi0_1*(Phi1_0*(Phi2_0*(Phi3_0*(C[i0+1,i1+0,i2+0,i3+0]) + Phi3_1*(C[i0+1,i1+0,i2+0,i3+1]) + Phi3_2*(C[i0+1,i1+0,i2+0,i3+2]) + Phi3_3*(C[i0+1,i1+0,i2+0,i3+3])) + Phi2_1*(Phi3_0*(C[i0+1,i1+0,i2+1,i3+0]) + Phi3_1*(C[i0+1,i1+0,i2+1,i3+1]) + Phi3_2*(C[i0+1,i1+0,i2+1,i3+2]) + Phi3_3*(C[i0+1,i1+0,i2+1,i3+3])) + Phi2_2*(Phi3_0*(C[i0+1,i1+0,i2+2,i3+0]) + Phi3_1*(C[i0+1,i1+0,i2+2,i3+1]) + Phi3_2*(C[i0+1,i1+0,i2+2,i3+2]) + Phi3_3*(C[i0+1,i1+0,i2+2,i3+3])) + Phi2_3*(Phi3_0*(C[i0+1,i1+0,i2+3,i3+0]) + Phi3_1*(C[i0+1,i1+0,i2+3,i3+1]) + Phi3_2*(C[i0+1,i1+0,i2+3,i3+2]) + Phi3_3*(C[i0+1,i1+0,i2+3,i3+3]))) + Phi1_1*(Phi2_0*(Phi3_0*(C[i0+1,i1+1,i2+0,i3+0]) + Phi3_1*(C[i0+1,i1+1,i2+0,i3+1]) + Phi3_2*(C[i0+1,i1+1,i2+0,i3+2]) + Phi3_3*(C[i0+1,i1+1,i2+0,i3+3])) + Phi2_1*(Phi3_0*(C[i0+1,i1+1,i2+1,i3+0]) + Phi3_1*(C[i0+1,i1+1,i2+1,i3+1]) + Phi3_2*(C[i0+1,i1+1,i2+1,i3+2]) + Phi3_3*(C[i0+1,i1+1,i2+1,i3+3])) + Phi2_2*(Phi3_0*(C[i0+1,i1+1,i2+2,i3+0]) + Phi3_1*(C[i0+1,i1+1,i2+2,i3+1]) + Phi3_2*(C[i0+1,i1+1,i2+2,i3+2]) + Phi3_3*(C[i0+1,i1+1,i2+2,i3+3])) + Phi2_3*(Phi3_0*(C[i0+1,i1+1,i2+3,i3+0]) + Phi3_1*(C[i0+1,i1+1,i2+3,i3+1]) + Phi3_2*(C[i0+1,i1+1,i2+3,i3+2]) + Phi3_3*(C[i0+1,i1+1,i2+3,i3+3]))) + Phi1_2*(Phi2_0*(Phi3_0*(C[i0+1,i1+2,i2+0,i3+0]) + Phi3_1*(C[i0+1,i1+2,i2+0,i3+1]) + Phi3_2*(C[i0+1,i1+2,i2+0,i3+2]) + Phi3_3*(C[i0+1,i1+2,i2+0,i3+3])) + Phi2_1*(Phi3_0*(C[i0+1,i1+2,i2+1,i3+0]) + Phi3_1*(C[i0+1,i1+2,i2+1,i3+1]) + Phi3_2*(C[i0+1,i1+2,i2+1,i3+2]) + Phi3_3*(C[i0+1,i1+2,i2+1,i3+3])) + Phi2_2*(Phi3_0*(C[i0+1,i1+2,i2+2,i3+0]) + Phi3_1*(C[i0+1,i1+2,i2+2,i3+1]) + Phi3_2*(C[i0+1,i1+2,i2+2,i3+2]) + Phi3_3*(C[i0+1,i1+2,i2+2,i3+3])) + Phi2_3*(Phi3_0*(C[i0+1,i1+2,i2+3,i3+0]) + Phi3_1*(C[i0+1,i1+2,i2+3,i3+1]) + Phi3_2*(C[i0+1,i1+2,i2+3,i3+2]) + Phi3_3*(C[i0+1,i1+2,i2+3,i3+3]))) + Phi1_3*(Phi2_0*(Phi3_0*(C[i0+1,i1+3,i2+0,i3+0]) + Phi3_1*(C[i0+1,i1+3,i2+0,i3+1]) + Phi3_2*(C[i0+1,i1+3,i2+0,i3+2]) + Phi3_3*(C[i0+1,i1+3,i2+0,i3+3])) + Phi2_1*(Phi3_0*(C[i0+1,i1+3,i2+1,i3+0]) + Phi3_1*(C[i0+1,i1+3,i2+1,i3+1]) + Phi3_2*(C[i0+1,i1+3,i2+1,i3+2]) + Phi3_3*(C[i0+1,i1+3,i2+1,i3+3])) + Phi2_2*(Phi3_0*(C[i0+1,i1+3,i2+2,i3+0]) + Phi3_1*(C[i0+1,i1+3,i2+2,i3+1]) + Phi3_2*(C[i0+1,i1+3,i2+2,i3+2]) + Phi3_3*(C[i0+1,i1+3,i2+2,i3+3])) + Phi2_3*(Phi3_0*(C[i0+1,i1+3,i2+3,i3+0]) + Phi3_1*(C[i0+1,i1+3,i2+3,i3+1]) + Phi3_2*(C[i0+1,i1+3,i2+3,i3+2]) + Phi3_3*(C[i0+1,i1+3,i2+3,i3+3])))) + Phi0_2*(Phi1_0*(Phi2_0*(Phi3_0*(C[i0+2,i1+0,i2+0,i3+0]) + Phi3_1*(C[i0+2,i1+0,i2+0,i3+1]) + Phi3_2*(C[i0+2,i1+0,i2+0,i3+2]) + Phi3_3*(C[i0+2,i1+0,i2+0,i3+3])) + Phi2_1*(Phi3_0*(C[i0+2,i1+0,i2+1,i3+0]) + Phi3_1*(C[i0+2,i1+0,i2+1,i3+1]) + Phi3_2*(C[i0+2,i1+0,i2+1,i3+2]) + Phi3_3*(C[i0+2,i1+0,i2+1,i3+3])) + Phi2_2*(Phi3_0*(C[i0+2,i1+0,i2+2,i3+0]) + Phi3_1*(C[i0+2,i1+0,i2+2,i3+1]) + Phi3_2*(C[i0+2,i1+0,i2+2,i3+2]) + Phi3_3*(C[i0+2,i1+0,i2+2,i3+3])) + Phi2_3*(Phi3_0*(C[i0+2,i1+0,i2+3,i3+0]) + Phi3_1*(C[i0+2,i1+0,i2+3,i3+1]) + Phi3_2*(C[i0+2,i1+0,i2+3,i3+2]) + Phi3_3*(C[i0+2,i1+0,i2+3,i3+3]))) + Phi1_1*(Phi2_0*(Phi3_0*(C[i0+2,i1+1,i2+0,i3+0]) + Phi3_1*(C[i0+2,i1+1,i2+0,i3+1]) + Phi3_2*(C[i0+2,i1+1,i2+0,i3+2]) + Phi3_3*(C[i0+2,i1+1,i2+0,i3+3])) + Phi2_1*(Phi3_0*(C[i0+2,i1+1,i2+1,i3+0]) + Phi3_1*(C[i0+2,i1+1,i2+1,i3+1]) + Phi3_2*(C[i0+2,i1+1,i2+1,i3+2]) + Phi3_3*(C[i0+2,i1+1,i2+1,i3+3])) + Phi2_2*(Phi3_0*(C[i0+2,i1+1,i2+2,i3+0]) + Phi3_1*(C[i0+2,i1+1,i2+2,i3+1]) + Phi3_2*(C[i0+2,i1+1,i2+2,i3+2]) + Phi3_3*(C[i0+2,i1+1,i2+2,i3+3])) + Phi2_3*(Phi3_0*(C[i0+2,i1+1,i2+3,i3+0]) + Phi3_1*(C[i0+2,i1+1,i2+3,i3+1]) + Phi3_2*(C[i0+2,i1+1,i2+3,i3+2]) + Phi3_3*(C[i0+2,i1+1,i2+3,i3+3]))) + Phi1_2*(Phi2_0*(Phi3_0*(C[i0+2,i1+2,i2+0,i3+0]) + Phi3_1*(C[i0+2,i1+2,i2+0,i3+1]) + Phi3_2*(C[i0+2,i1+2,i2+0,i3+2]) + Phi3_3*(C[i0+2,i1+2,i2+0,i3+3])) + Phi2_1*(Phi3_0*(C[i0+2,i1+2,i2+1,i3+0]) + Phi3_1*(C[i0+2,i1+2,i2+1,i3+1]) + Phi3_2*(C[i0+2,i1+2,i2+1,i3+2]) + Phi3_3*(C[i0+2,i1+2,i2+1,i3+3])) + Phi2_2*(Phi3_0*(C[i0+2,i1+2,i2+2,i3+0]) + Phi3_1*(C[i0+2,i1+2,i2+2,i3+1]) + Phi3_2*(C[i0+2,i1+2,i2+2,i3+2]) + Phi3_3*(C[i0+2,i1+2,i2+2,i3+3])) + Phi2_3*(Phi3_0*(C[i0+2,i1+2,i2+3,i3+0]) + Phi3_1*(C[i0+2,i1+2,i2+3,i3+1]) + Phi3_2*(C[i0+2,i1+2,i2+3,i3+2]) + Phi3_3*(C[i0+2,i1+2,i2+3,i3+3]))) + Phi1_3*(Phi2_0*(Phi3_0*(C[i0+2,i1+3,i2+0,i3+0]) + Phi3_1*(C[i0+2,i1+3,i2+0,i3+1]) + Phi3_2*(C[i0+2,i1+3,i2+0,i3+2]) + Phi3_3*(C[i0+2,i1+3,i2+0,i3+3])) + Phi2_1*(Phi3_0*(C[i0+2,i1+3,i2+1,i3+0]) + Phi3_1*(C[i0+2,i1+3,i2+1,i3+1]) + Phi3_2*(C[i0+2,i1+3,i2+1,i3+2]) + Phi3_3*(C[i0+2,i1+3,i2+1,i3+3])) + Phi2_2*(Phi3_0*(C[i0+2,i1+3,i2+2,i3+0]) + Phi3_1*(C[i0+2,i1+3,i2+2,i3+1]) + Phi3_2*(C[i0+2,i1+3,i2+2,i3+2]) + Phi3_3*(C[i0+2,i1+3,i2+2,i3+3])) + Phi2_3*(Phi3_0*(C[i0+2,i1+3,i2+3,i3+0]) + Phi3_1*(C[i0+2,i1+3,i2+3,i3+1]) + Phi3_2*(C[i0+2,i1+3,i2+3,i3+2]) + Phi3_3*(C[i0+2,i1+3,i2+3,i3+3])))) + Phi0_3*(Phi1_0*(Phi2_0*(Phi3_0*(C[i0+3,i1+0,i2+0,i3+0]) + Phi3_1*(C[i0+3,i1+0,i2+0,i3+1]) + Phi3_2*(C[i0+3,i1+0,i2+0,i3+2]) + Phi3_3*(C[i0+3,i1+0,i2+0,i3+3])) + Phi2_1*(Phi3_0*(C[i0+3,i1+0,i2+1,i3+0]) + Phi3_1*(C[i0+3,i1+0,i2+1,i3+1]) + Phi3_2*(C[i0+3,i1+0,i2+1,i3+2]) + Phi3_3*(C[i0+3,i1+0,i2+1,i3+3])) + Phi2_2*(Phi3_0*(C[i0+3,i1+0,i2+2,i3+0]) + Phi3_1*(C[i0+3,i1+0,i2+2,i3+1]) + Phi3_2*(C[i0+3,i1+0,i2+2,i3+2]) + Phi3_3*(C[i0+3,i1+0,i2+2,i3+3])) + Phi2_3*(Phi3_0*(C[i0+3,i1+0,i2+3,i3+0]) + Phi3_1*(C[i0+3,i1+0,i2+3,i3+1]) + Phi3_2*(C[i0+3,i1+0,i2+3,i3+2]) + Phi3_3*(C[i0+3,i1+0,i2+3,i3+3]))) + Phi1_1*(Phi2_0*(Phi3_0*(C[i0+3,i1+1,i2+0,i3+0]) + Phi3_1*(C[i0+3,i1+1,i2+0,i3+1]) + Phi3_2*(C[i0+3,i1+1,i2+0,i3+2]) + Phi3_3*(C[i0+3,i1+1,i2+0,i3+3])) + Phi2_1*(Phi3_0*(C[i0+3,i1+1,i2+1,i3+0]) + Phi3_1*(C[i0+3,i1+1,i2+1,i3+1]) + Phi3_2*(C[i0+3,i1+1,i2+1,i3+2]) + Phi3_3*(C[i0+3,i1+1,i2+1,i3+3])) + Phi2_2*(Phi3_0*(C[i0+3,i1+1,i2+2,i3+0]) + Phi3_1*(C[i0+3,i1+1,i2+2,i3+1]) + Phi3_2*(C[i0+3,i1+1,i2+2,i3+2]) + Phi3_3*(C[i0+3,i1+1,i2+2,i3+3])) + Phi2_3*(Phi3_0*(C[i0+3,i1+1,i2+3,i3+0]) + Phi3_1*(C[i0+3,i1+1,i2+3,i3+1]) + Phi3_2*(C[i0+3,i1+1,i2+3,i3+2]) + Phi3_3*(C[i0+3,i1+1,i2+3,i3+3]))) + Phi1_2*(Phi2_0*(Phi3_0*(C[i0+3,i1+2,i2+0,i3+0]) + Phi3_1*(C[i0+3,i1+2,i2+0,i3+1]) + Phi3_2*(C[i0+3,i1+2,i2+0,i3+2]) + Phi3_3*(C[i0+3,i1+2,i2+0,i3+3])) + Phi2_1*(Phi3_0*(C[i0+3,i1+2,i2+1,i3+0]) + Phi3_1*(C[i0+3,i1+2,i2+1,i3+1]) + Phi3_2*(C[i0+3,i1+2,i2+1,i3+2]) + Phi3_3*(C[i0+3,i1+2,i2+1,i3+3])) + Phi2_2*(Phi3_0*(C[i0+3,i1+2,i2+2,i3+0]) + Phi3_1*(C[i0+3,i1+2,i2+2,i3+1]) + Phi3_2*(C[i0+3,i1+2,i2+2,i3+2]) + Phi3_3*(C[i0+3,i1+2,i2+2,i3+3])) + Phi2_3*(Phi3_0*(C[i0+3,i1+2,i2+3,i3+0]) + Phi3_1*(C[i0+3,i1+2,i2+3,i3+1]) + Phi3_2*(C[i0+3,i1+2,i2+3,i3+2]) + Phi3_3*(C[i0+3,i1+2,i2+3,i3+3]))) + Phi1_3*(Phi2_0*(Phi3_0*(C[i0+3,i1+3,i2+0,i3+0]) + Phi3_1*(C[i0+3,i1+3,i2+0,i3+1]) + Phi3_2*(C[i0+3,i1+3,i2+0,i3+2]) + Phi3_3*(C[i0+3,i1+3,i2+0,i3+3])) + Phi2_1*(Phi3_0*(C[i0+3,i1+3,i2+1,i3+0]) + Phi3_1*(C[i0+3,i1+3,i2+1,i3+1]) + Phi3_2*(C[i0+3,i1+3,i2+1,i3+2]) + Phi3_3*(C[i0+3,i1+3,i2+1,i3+3])) + Phi2_2*(Phi3_0*(C[i0+3,i1+3,i2+2,i3+0]) + Phi3_1*(C[i0+3,i1+3,i2+2,i3+1]) + Phi3_2*(C[i0+3,i1+3,i2+2,i3+2]) + Phi3_3*(C[i0+3,i1+3,i2+2,i3+3])) + Phi2_3*(Phi3_0*(C[i0+3,i1+3,i2+3,i3+0]) + Phi3_1*(C[i0+3,i1+3,i2+3,i3+1]) + Phi3_2*(C[i0+3,i1+3,i2+3,i3+2]) + Phi3_3*(C[i0+3,i1+3,i2+3,i3+3]))))
 
     end
-
-    return vals
 
 end
 

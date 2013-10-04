@@ -29,13 +29,13 @@ function eval_UBspline(smin, smax, orders, coefs, svec)
     vals = zeros(N)
 
     if d == 1
-        eval_UBspline_1d(smin, smax, orders, coefs, svec, vals)
+        eval_UBspline_1d(smin, smax, orders, coefs, svec, vals, A44d, dA44d)
     elseif d == 2
-        eval_UBspline_2d(smin, smax, orders, coefs, svec, vals)
+        eval_UBspline_2d(smin, smax, orders, coefs, svec, vals, A44d, dA44d)
     elseif d == 3
-        eval_UBspline_3d(smin, smax, orders, coefs, svec, vals)
+        eval_UBspline_3d(smin, smax, orders, coefs, svec, vals, A44d, dA44d)
     elseif d == 4
-        eval_UBspline_4d(smin, smax, orders, coefs, svec, vals)
+        eval_UBspline_4d(smin, smax, orders, coefs, svec, vals, A44d, dA44d)
     end
 
     return vals
@@ -47,7 +47,7 @@ end
 {{for d in range(1,max_order+1)}}
 
 
-function eval_UBspline_{{d}}d( smin, smax, orders, coefs, svec, vals)
+function eval_UBspline_{{d}}d( smin, smax, orders, C, svec, vals, Ad, dAd)
         
         
     {{for i in range(d)}}
@@ -58,11 +58,6 @@ function eval_UBspline_{{d}}d( smin, smax, orders, coefs, svec, vals)
                     
        
     N = size(svec,1)
-
-    Ad = A44d
-    dAd = dA44d
-
-    C = coefs
 
     for n=0:N-1
 
@@ -107,8 +102,6 @@ function eval_UBspline_{{d}}d( smin, smax, orders, coefs, svec, vals)
             vals[n] = {{values[d]}}
 
     end
-
-    return vals
 
 end
 
