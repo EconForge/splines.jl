@@ -1,6 +1,6 @@
 function filter_coeffs(smin,smax,orders,data)
 
-    dinv = (smax - smin)/(orders-1)
+    dinv = (smax - smin)./(orders-1)
     d = length(smin)
     if d == 1
         coeffs = filter_coeffs_1d(dinv,data)
