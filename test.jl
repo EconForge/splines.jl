@@ -19,12 +19,25 @@ coefs = filter_coeffs(smin,smax,orders,b)
 
 #s = linspace(-0.1,1.1,100000)
 s = linspace(0.01,0.99,100000)
+print(size(s))
 
-interp_values = eval_UBspline(smin,smax,orders,coefs,s)
+s = copy(s'')
+
+interp_values = eval_UC_spline(smin,smax,orders,coefs,s)
+
+#interp_values,dint = eval_UC_spline_G(smin,smax,orders,coefs,s)
+
+fun = interpolant_cspline(smin,smax,orders,b)
+vals = fun(s)
+
+print("Error :\n")
+display( max(max(abs(interp_values - vals )  )))
+
+print("\n")
 
 tic()
 for i = 1:N_tries
-    interp_values = eval_UBspline(smin,smax,orders,coefs,s)
+    interp_values = eval_UC_spline(smin,smax,orders,coefs,s)
 end
 
 true_values = f(s)
@@ -51,13 +64,17 @@ b = convert(Array{Float64},b)
 #di = [1.0,1.0]
 coefs = filter_coeffs(smin,smax,orders,b)
 
-forders = [100,100]
+forders = [1000,1000]
 N = prod(forders)
 mgrid = [ [x y] for x=linspace(0,1,forders[1]), y=linspace(0,1,forders[2])]
 
 vgrid = vcat(mgrid...)
-
-interp_vals = eval_UBspline(smin,smax,orders,coefs,vgrid)
+interp_vals = eval_UC_spline(smin,smax,orders,coefs,vgrid)
+tic()
+for i = 1:10
+interp_vals = eval_UC_spline(smin,smax,orders,coefs,vgrid)
+end
+toc()
 true_vals = [sin(x+y) for x=linspace(0,1,forders[1]), y=linspace(0,1,forders[2])]
 true_vals = convert(Array{Float64},true_vals[:])
 
