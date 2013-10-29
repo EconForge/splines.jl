@@ -60,7 +60,7 @@ function eval_UC_spline_G(smin, smax, orders, C, S)
         eval_UC_spline_4d(smin, smax, orders, C, S, vals, grad, A44d, dA44d)
     end
 
-    return [vals, grad]
+    return (vals, grad)
 
 end
 
