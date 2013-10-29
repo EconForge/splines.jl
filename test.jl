@@ -31,7 +31,7 @@ fun = interpolant_cspline(smin,smax,orders,b)
 vals = fun(s)
 
 print("Error :\n")
-display( max(max(abs(interp_values - vals )  )))
+display( maximum(maximum(abs(interp_values - vals )  )))
 
 print("\n")
 
@@ -70,6 +70,8 @@ mgrid = [ [x y] for x=linspace(0,1,forders[1]), y=linspace(0,1,forders[2])]
 
 vgrid = vcat(mgrid...)
 interp_vals = eval_UC_spline(smin,smax,orders,coefs,vgrid)
+
+
 tic()
 for i = 1:10
 interp_vals = eval_UC_spline(smin,smax,orders,coefs,vgrid)
