@@ -1,4 +1,4 @@
-function filter_coeffs(smin,smax,orders,data)
+function filter_coeffs(smin::Vector{Float64}, smax::Vector{Float64}, orders::Vector{Int64}, data::Array{Float64})
 
     dinv = (smax - smin)./(orders-1)
     d = length(smin)
