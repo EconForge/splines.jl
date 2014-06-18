@@ -1,6 +1,6 @@
 function filter_coeffs(smin::Vector{Float64}, smax::Vector{Float64}, orders::Vector{Int64}, data::Array{Float64})
 
-    dinv = (smax - smin)./(orders-1)
+    dinv = (smax - smin)./(orders.-1)
     d = length(smin)
     if d == 1
         coeffs = filter_coeffs_1d(dinv,data)
@@ -30,7 +30,7 @@ function find_coefs_1d(delta_inv, M, data)
 
     vals = repeat( basis, outer=[M])
     co_x = repeat( [2:M+1], inner=[3])
-    co_y = repeat( [1:3] , outer=[M]) + co_x - 2
+    co_y = repeat( [1:3] , outer=[M]) + co_x .- 2
 
     db = 4
     initial = [1.0,-2.0,1.0,0.0]*delta_inv*delta_inv
