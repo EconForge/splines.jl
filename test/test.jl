@@ -80,7 +80,7 @@ toc()
 true_vals = [sin(x+y) for x=linspace(0,1,forders[1]), y=linspace(0,1,forders[2])]
 true_vals = convert(Array{Float64},true_vals[:])
 
-print("Maximum interpolation errori : ", norm(true_vals-interp_vals,Inf),"\n")
+print("Maximum interpolation error : ", norm(true_vals-interp_vals,Inf),"\n")
 
 #tic()
 #toc()
