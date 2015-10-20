@@ -17,28 +17,28 @@ function find_coefs_1d(delta_inv, M, data)
     # args: double, int, double[:], double[:
 
     N = M + 2
-    
+
     data = data[:]
 
     if length(data) == N
         rhs = data
     else
-        rhs = [0, data, 0]
+        rhs = [0; data; 0]
     end
 
     basis = [1.0/6.0, 2.0/3.0, 1.0/6.0]
 
     vals = repeat( basis, outer=[M])
-    co_x = repeat( [2:M+1], inner=[3])
-    co_y = repeat( [1:3] , outer=[M]) + co_x .- 2
+    co_x = repeat( collect(2:M+1), inner=[3])
+    co_y = repeat( collect(1:3) , outer=[M]) + co_x .- 2
 
     db = 4
     initial = [1.0,-2.0,1.0,0.0]*delta_inv*delta_inv
     final = [0.0,1.0,-2.0,1.0]*delta_inv*delta_inv
 
-    vals = [initial, vals, final]
-    co_x = [ones(Int,db), co_x, ones(Int,db)*(M+2)]
-    co_y = [1:db, co_y, M+3-db:M+2]
+    vals = [initial; vals; final]
+    co_x = [ones(Int,db); co_x; ones(Int,db)*(M+2)]
+    co_y = [1:db; co_y; M+3-db:M+2]
 
     spmat = sparse(co_x, co_y, vals)
 
@@ -46,7 +46,7 @@ function find_coefs_1d(delta_inv, M, data)
 
     return sol
 
-    
+
 end
 
 function filter_coeffs_1d(dinv, data)
@@ -90,7 +90,7 @@ function filter_coeffs_3d(dinv, data)
     Mx = size(data,1)
     My = size(data,2)
     Mz = size(data,3)
-    
+
     Nx = Mx+2
     Ny = My+2
     Nz = Mz+2

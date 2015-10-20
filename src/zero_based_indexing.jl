@@ -1,7 +1,7 @@
 
 rewrite(x::Number) = x
 rewrite(x::Symbol) = x
-rewrite(x::String) = x
+rewrite(x::AbstractString) = x
 function rewrite(expr)
     if expr.head == :ref
         return Expr(expr.head, expr.args[1], [rewrite(:( 1 + $i)) for i in expr.args[2:end]]...)
@@ -20,5 +20,3 @@ end
 #    print(a[0])
 #    print(a[b[1]])
 #end
-
-
