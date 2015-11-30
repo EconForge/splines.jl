@@ -6,6 +6,24 @@ function filter_coeffs(smin::Vector{Float64}, smax::Vector{Float64}, orders::Vec
         coeffs = filter_coeffs_1d(dinv,data)
     elseif d == 2
         coeffs = filter_coeffs_2d(dinv,data)
+    elseif d == 3
+        coeffs = filter_coeffs_3d(dinv,data)
+    else
+        error()
+    end
+    return coeffs
+end
+
+function ff(smin::Vector{Float64}, smax::Vector{Float64}, orders::Vector{Int64}, data::Array{Float64})
+
+    dinv = (smax - smin)./(orders.-1)
+    d = length(smin)
+    if d == 1
+        coeffs = filter_coeffs_1d(dinv,data)
+    elseif d == 2
+        coeffs = filter_coeffs_2d(dinv,data)
+    elseif d == 3
+        coeffs = filter_coeffs_3d(dinv,data)
     else
         error()
     end
@@ -108,14 +126,14 @@ function filter_coeffs_3d(dinv, data)
     # Now, solve in the Y-direction
     for ix in 1:Nx
         for iz in 1:Mz
-            ccoefs[ix,:,iz+1] = find_coefs_1d(dinv[2], My, coefs[ix,:,iz])
+            coefs[ix,:,iz+1] = find_coefs_1d(dinv[2], My, coefs[ix,:,iz+1])
         end
     end
 
     # Now, solve in the Z-direction
     for ix in 1:Nx
         for iy in 1:Ny
-            ccoefs[ix,iy,:] = find_coefs_1d(dinv[2], Mz, coefs[ix,iy,:])
+            coefs[ix,iy,:] = find_coefs_1d(dinv[3], Mz, coefs[ix,iy,:])
         end
     end
 
