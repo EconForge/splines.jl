@@ -789,6 +789,10 @@ function eval_UC_spline_4d( smin, smax, orders, C, S, V, dV, Ad, dAd)
             dPhi0_1 = (dAd[1,0]*tp0_0 + dAd[1,1]*tp0_1 + dAd[1,2]*tp0_2 + dAd[1,3]*tp0_3)*dinv0
             dPhi0_2 = (dAd[2,0]*tp0_0 + dAd[2,1]*tp0_1 + dAd[2,2]*tp0_2 + dAd[2,3]*tp0_3)*dinv0
             dPhi0_3 = (dAd[3,0]*tp0_0 + dAd[3,1]*tp0_1 + dAd[3,2]*tp0_2 + dAd[3,3]*tp0_3)*dinv0
+
+
+
+
             dPhi1_0 = (dAd[0,0]*tp1_0 + dAd[0,1]*tp1_1 + dAd[0,2]*tp1_2 + dAd[0,3]*tp1_3)*dinv1
             dPhi1_1 = (dAd[1,0]*tp1_0 + dAd[1,1]*tp1_1 + dAd[1,2]*tp1_2 + dAd[1,3]*tp1_3)*dinv1
             dPhi1_2 = (dAd[2,0]*tp1_0 + dAd[2,1]*tp1_1 + dAd[2,2]*tp1_2 + dAd[2,3]*tp1_3)*dinv1

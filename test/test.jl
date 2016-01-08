@@ -23,6 +23,11 @@ s = linspace(0.01,0.99,100000)
 s = copy(s'')
 
 interp_values = eval_UC_spline(smin,smax,orders,coefs,s)
+val, grad = eval_UC_spline_G(smin,smax,orders,coefs,s)
+
+print(size(val))
+print(size(grad))
+
 
 #interp_values,dint = eval_UC_spline_G(smin,smax,orders,coefs,s)
 

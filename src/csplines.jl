@@ -42,7 +42,7 @@ function eval_UC_spline(smin, smax, orders, C, S)
 
 end
 
-function eval_UC_spline_G(smin, smax, orders, C, S)
+function eval_UC_spline_G(a, b, orders, C, S)
 
     d = size(S,2)
     N = size(S,1)
@@ -51,13 +51,13 @@ function eval_UC_spline_G(smin, smax, orders, C, S)
     grad = zeros(N,d)
 
     if d == 1
-        eval_UC_spline_1d(smin, smax, orders, C, S, vals, grad, A44d, dA44d)
+        eval_UC_spline_1d(a, b, orders, C, S, vals, grad, A44d, dA44d)
     elseif d == 2
-        eval_UC_spline_2d(smin, smax, orders, C, S, vals, grad, A44d, dA44d)
+        eval_UC_spline_2d(a, b, orders, C, S, vals, grad, A44d, dA44d)
     elseif d == 3
-        eval_UC_spline_3d(smin, smax, orders, C, S, vals, grad, A44d, dA44d)
+        eval_UC_spline_3d(a, b, orders, C, S, vals, grad, A44d, dA44d)
     elseif d == 4
-        eval_UC_spline_4d(smin, smax, orders, C, S, vals, grad, A44d, dA44d)
+        eval_UC_spline_4d(a, b, orders, C, S, vals, grad, A44d, dA44d)
     end
 
     return (vals, grad)
@@ -65,5 +65,12 @@ function eval_UC_spline_G(smin, smax, orders, C, S)
 end
 
 for d = 1:4
+    println("Generating function ", d)
     eval(create_function(d,"natural"))
+end
+
+
+for d = 1:4
+    println("Generating function with gradients", d)
+    eval(create_function_with_gradient(d,"natural"))
 end

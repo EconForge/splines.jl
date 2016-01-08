@@ -6,7 +6,7 @@ using Base.Cartesian
 U(s,i) = Symbol(string(s,i))
 U(s,i,j) = Symbol(string(s,i,"_",j))
 
-function create_Phi(d, extrap)
+function create_Phi(d, extrap, diff)
     lines = []
     for i=1:d
         block = []
@@ -20,18 +20,8 @@ function create_Phi(d, extrap)
                 push!(lines,eq)
             end
         elseif extrap == "natural"
-            # block1 = []
-            # for j=1:4
-            #     eq = :($(U("Phi_",i,j)) = (Ad[1,1]*$rhs_1 + Ad[1,2]*$rhs_2 + Ad[1,3]*$rhs_3 + Ad[1,4]*$rhs_4) )
-            #     push!(block1,eq)
-            # end
-            # block2 = []
-            # for j=1:4
-            #     eq = :($(U("Phi_",i,j)) = (Ad[1,1]*$rhs_1 + Ad[1,2]*$rhs_2 + Ad[1,3]*$rhs_3 + Ad[1,4]*$rhs_4) )
-            #     push!(block2,eq)
-            # end
-            # block3 = []
             block = quote
+
                 if $(U("t",i))<0
                     $( [ :($(U("Phi_",i,j)) = (dAd[$j,4]*$rhs_3 + Ad[$j,4]) ) for j=1:4 ]...)
                 elseif $(U("t",i))>1
@@ -43,13 +33,18 @@ function create_Phi(d, extrap)
             end
             # for l in block.args
             push!(lines,block.args...)
-
+        end
+        if diff
+            for j=1:4
+                eq = :($(U("dPhi_",i,j)) = (dAd[$j,1]*$rhs_1 + dAd[$j,2]*$rhs_2 + dAd[$j,3]*$rhs_3 + dAd[$j,3]*$rhs_4 )*$(U("dinv",i)) )
+                push!(lines,eq)
+            end
         end
     end
     return lines
 end
 
-create_Phi(3, "natural")
+create_Phi(1, "natural", true)
 
 function tensor_prod(symbs, inds)
     if length(symbs)==0
@@ -73,9 +68,11 @@ function tensor_prod(symbs, inds)
     end
 end
 
+
 tensor_prod([], Int64[1,2,3,4])           # C[1,2,3,4]
 tensor_prod(["Phi_1"], Int64[])  # Phi_1_1 * C[i1 + 1] + Phi_1_2 * C[i1 + 2] + Phi_1_3 * C[i1 + 3] + Phi_1_4 * C[i1 + 4]
 tensor_prod(["Phi_1", "Phi_2"], Int64[]) # -> Phi_1_1 * (Phi_2_1 * C[i1 + 1,i2 + 1] + Phi_2_2 * C[i1 + 1,i2 + 2] + Phi_2_3 * C[i1 + 1,i2 + 3] + Phi_2_4 * C[i1 + 1,i2 + 4]) + Phi_1_2 * (Phi_2_1 * C[i1 + 2,i2 + 1] + Phi_2_2 * C[i1 + 2,i2 + 2] + Phi_2_3 * C[i1 + 2,i2 + 3] + Phi_2_4 * C[i1 + 2,i2 + 4]) + Phi_1_3 * (Phi_2_1 * C[i1 + 3,i2 + 1] + Phi_2_2 * C[i1 + 3,i2 + 2] + Phi_2_3 * C[i1 + 3,i2 + 3] + Phi_2_4 * C[i1 + 3,i2 + 4]) + Phi_1_4 * (Phi_2_1 * C[i1 + 4,i2 + 1] + Phi_2_2 * C[i1 + 4,i2 + 2] + Phi_2_3 * C[i1 + 4,i2 + 3] + Phi_2_4 * C[i1 + 4,i2 + 4])
+tensor_prod(["Phi_1", "dPhi_2"], Int64[]) # -> Phi_1_1 * (Phi_2_1 * C[i1 + 1,i2 + 1] + Phi_2_2 * C[i1 + 1,i2 + 2] + Phi_2_3 * C[i1 + 1,i2 + 3] + Phi_2_4 * C[i1 + 1,i2 + 4]) + Phi_1_2 * (Phi_2_1 * C[i1 + 2,i2 + 1] + Phi_2_2 * C[i1 + 2,i2 + 2] + Phi_2_3 * C[i1 + 2,i2 + 3] + Phi_2_4 * C[i1 + 2,i2 + 4]) + Phi_1_3 * (Phi_2_1 * C[i1 + 3,i2 + 1] + Phi_2_2 * C[i1 + 3,i2 + 2] + Phi_2_3 * C[i1 + 3,i2 + 3] + Phi_2_4 * C[i1 + 3,i2 + 4]) + Phi_1_4 * (Phi_2_1 * C[i1 + 4,i2 + 1] + Phi_2_2 * C[i1 + 4,i2 + 2] + Phi_2_3 * C[i1 + 4,i2 + 3] + Phi_2_4 * C[i1 + 4,i2 + 4])
 
 
 
@@ -125,7 +122,7 @@ function create_function(d,extrap="natural")
             # @simd( # doesn't seem to make any difference
             for n=1:N
                 $(create_local_parameters(d)...)
-                $(create_Phi(d,extrap)...)
+                $(create_Phi(d,extrap,false)...)
                 V[n] = $( tensor_prod([string("Phi_",i) for i=1:d], Int64[]) )
             end
             # )
@@ -133,6 +130,38 @@ function create_function(d,extrap="natural")
     end
     return expr
 end
+
+create_function(1)
+
+function create_function_with_gradient(d,extrap="natural")
+
+    grad_allocs = []
+    for j in 1:d
+        phis = [string("Phi_",i) for i = 1:d]
+        phis[j] = string("dPhi_",j)
+        push!( grad_allocs, phis )
+        # push!( grad_allocs, :( dV[n,j] = $(tensor_prod(phis, Int64[])) ) )
+    end
+    # println(grad_allocs)
+
+    expr = quote
+        function $(Symbol(string("eval_UC_spline_",d,"d")))( a, b, orders, C, S, V, dV, Ad, dAd)
+            $(create_parameters(d)...)
+            N = size(S,1)
+            # @simd( # doesn't seem to make any difference
+            for n=1:N
+                $(create_local_parameters(d)...)
+                $(create_Phi(d,extrap,true)...)
+                V[n] = $(tensor_prod([string("Phi_",i) for i=1:d], Int64[]))
+                $([     :( dV[n,$j] = $(tensor_prod(grad_allocs[j], Int64[])) )    for j=1:d]...)
+            end
+            # )
+        end
+    end
+    return expr
+end
+
+create_function_with_gradient(2,"natural")
 
 #
 # @time fun = create_function(2,"natural");
