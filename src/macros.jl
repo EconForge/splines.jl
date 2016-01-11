@@ -1,8 +1,3 @@
-using Base.getindex
-using Base.Cartesian
-
-
-
 U(s,i) = Symbol(string(s,i))
 U(s,i,j) = Symbol(string(s,i,"_",j))
 
@@ -21,14 +16,12 @@ function create_Phi(d, extrap, diff)
             end
         elseif extrap == "natural"
             block = quote
-
                 if $(U("t",i))<0
                     $( [ :($(U("Phi_",i,j)) = (dAd[$j,4]*$rhs_3 + Ad[$j,4]) ) for j=1:4 ]...)
                 elseif $(U("t",i))>1
                     $( [ :($(U("Phi_",i,j)) = (3*Ad[$j,1] + 2*Ad[$j,2] + Ad[$j,3])*($rhs_3-1) + (Ad[$j,1]+Ad[$j,2]+Ad[$j,3]+Ad[$j,4]) ) for j=1:4 ]...)
                 else
                     $( [ :($(U("Phi_",i,j)) = (Ad[$j,1]*$rhs_1 + Ad[$j,2]*$rhs_2 + Ad[$j,3]*$rhs_3 + Ad[$j,4]*$rhs_4) ) for j=1:4 ]...)
-
                 end
             end
             # for l in block.args
@@ -44,14 +37,10 @@ function create_Phi(d, extrap, diff)
     return lines
 end
 
-create_Phi(1, "natural", true)
-
 function tensor_prod(symbs, inds)
     if length(symbs)==0
-        # return parse(string("C",inds,""))
         subscripts = [:($(U("i",i))+$(inds[i])) for i=1:length(inds)]
         return :(C[$(subscripts...)])
-        # return (parse(string("C",string(inds),"")))
     else
         h = symbs[1]
         if length(symbs)>1
@@ -68,14 +57,10 @@ function tensor_prod(symbs, inds)
     end
 end
 
-
-tensor_prod([], Int64[1,2,3,4])           # C[1,2,3,4]
-tensor_prod(["Phi_1"], Int64[])  # Phi_1_1 * C[i1 + 1] + Phi_1_2 * C[i1 + 2] + Phi_1_3 * C[i1 + 3] + Phi_1_4 * C[i1 + 4]
-tensor_prod(["Phi_1", "Phi_2"], Int64[]) # -> Phi_1_1 * (Phi_2_1 * C[i1 + 1,i2 + 1] + Phi_2_2 * C[i1 + 1,i2 + 2] + Phi_2_3 * C[i1 + 1,i2 + 3] + Phi_2_4 * C[i1 + 1,i2 + 4]) + Phi_1_2 * (Phi_2_1 * C[i1 + 2,i2 + 1] + Phi_2_2 * C[i1 + 2,i2 + 2] + Phi_2_3 * C[i1 + 2,i2 + 3] + Phi_2_4 * C[i1 + 2,i2 + 4]) + Phi_1_3 * (Phi_2_1 * C[i1 + 3,i2 + 1] + Phi_2_2 * C[i1 + 3,i2 + 2] + Phi_2_3 * C[i1 + 3,i2 + 3] + Phi_2_4 * C[i1 + 3,i2 + 4]) + Phi_1_4 * (Phi_2_1 * C[i1 + 4,i2 + 1] + Phi_2_2 * C[i1 + 4,i2 + 2] + Phi_2_3 * C[i1 + 4,i2 + 3] + Phi_2_4 * C[i1 + 4,i2 + 4])
-tensor_prod(["Phi_1", "dPhi_2"], Int64[]) # -> Phi_1_1 * (Phi_2_1 * C[i1 + 1,i2 + 1] + Phi_2_2 * C[i1 + 1,i2 + 2] + Phi_2_3 * C[i1 + 1,i2 + 3] + Phi_2_4 * C[i1 + 1,i2 + 4]) + Phi_1_2 * (Phi_2_1 * C[i1 + 2,i2 + 1] + Phi_2_2 * C[i1 + 2,i2 + 2] + Phi_2_3 * C[i1 + 2,i2 + 3] + Phi_2_4 * C[i1 + 2,i2 + 4]) + Phi_1_3 * (Phi_2_1 * C[i1 + 3,i2 + 1] + Phi_2_2 * C[i1 + 3,i2 + 2] + Phi_2_3 * C[i1 + 3,i2 + 3] + Phi_2_4 * C[i1 + 3,i2 + 4]) + Phi_1_4 * (Phi_2_1 * C[i1 + 4,i2 + 1] + Phi_2_2 * C[i1 + 4,i2 + 2] + Phi_2_3 * C[i1 + 4,i2 + 3] + Phi_2_4 * C[i1 + 4,i2 + 4])
-
-
-
+tensor_prod([], Int64[1,2,3,4])            # C[1,2,3,4]
+tensor_prod(["Phi_1"], Int64[])            # Phi_1_1 * C[i1 + 1] + Phi_1_2 * C[i1 + 2] + Phi_1_3 * C[i1 + 3] + Phi_1_4 * C[i1 + 4]
+tensor_prod(["Phi_1", "Phi_2"], Int64[])   # Phi_1_1 * (Phi_2_1 * C[i1 + 1,i2 + 1] + Phi_2_2 * C[i1 + 1,i2 + 2] + Phi_2_3 * C[i1 + 1,i2 + 3] + Phi_2_4 * C[i1 + 1,i2 + 4]) + Phi_1_2 * (Phi_2_1 * C[i1 + 2,i2 + 1] + Phi_2_2 * C[i1 + 2,i2 + 2] + Phi_2_3 * C[i1 + 2,i2 + 3] + Phi_2_4 * C[i1 + 2,i2 + 4]) + Phi_1_3 * (Phi_2_1 * C[i1 + 3,i2 + 1] + Phi_2_2 * C[i1 + 3,i2 + 2] + Phi_2_3 * C[i1 + 3,i2 + 3] + Phi_2_4 * C[i1 + 3,i2 + 4]) + Phi_1_4 * (Phi_2_1 * C[i1 + 4,i2 + 1] + Phi_2_2 * C[i1 + 4,i2 + 2] + Phi_2_3 * C[i1 + 4,i2 + 3] + Phi_2_4 * C[i1 + 4,i2 + 4])
+tensor_prod(["Phi_1", "dPhi_2"], Int64[])  # Phi_1_1 * (dPhi_2_1 * C[i1 + 1,i2 + 1] + dPhi_2_2 * C[i1 + 1,i2 + 2] + dPhi_2_3 * C[i1 + 1,i2 + 3] + dPhi_2_4 * C[i1 + 1,i2 + 4]) + Phi_1_2 * (dPhi_2_1 * C[i1 + 2,i2 + 1] + dPhi_2_2 * C[i1 + 2,i2 + 2] + dPhi_2_3 * C[i1 + 2,i2 + 3] + dPhi_2_4 * C[i1 + 2,i2 + 4]) + Phi_1_3 * (dPhi_2_1 * C[i1 + 3,i2 + 1] + dPhi_2_2 * C[i1 + 3,i2 + 2] + dPhi_2_3 * C[i1 + 3,i2 + 3] + dPhi_2_4 * C[i1 + 3,i2 + 4]) + Phi_1_4 * (dPhi_2_1 * C[i1 + 4,i2 + 1] + dPhi_2_2 * C[i1 + 4,i2 + 2] + dPhi_2_3 * C[i1 + 4,i2 + 3] + dPhi_2_4 * C[i1 + 4,i2 + 4])
 
 
 function create_parameters(d)
@@ -131,8 +116,6 @@ function create_function(d,extrap="natural")
     return expr
 end
 
-create_function(1)
-
 function create_function_with_gradient(d,extrap="natural")
 
     grad_allocs = []
@@ -160,73 +143,3 @@ function create_function_with_gradient(d,extrap="natural")
     end
     return expr
 end
-
-create_function_with_gradient(2,"natural")
-
-#
-# @time fun = create_function(2,"natural");
-# println(fun)
-#
-# d = 3
-# K = 10
-# N = 100000
-# a = [0.0 for i in 1:d]
-# b = [1.0 for i in 1:d]
-# orders = [K for i in 1:d]
-# C = rand([K+2 for i in 1:d]...)
-# S = rand(N,d)*10-5
-# V = zeros(N)
-#
-#
-# Ad = [
-#    [-1.0/6.0  3.0/6.0 -3.0/6.0 1.0/6.0];
-#    [ 3.0/6.0 -6.0/6.0  0.0/6.0 4.0/6.0];
-#    [-3.0/6.0  3.0/6.0  3.0/6.0 1.0/6.0];
-#    [ 1.0/6.0  0.0/6.0  0.0/6.0 0.0/6.0]
-# ]
-#
-# dAd = [
-#    [ 0.0 -0.5  1.0 -0.5];
-#    [ 0.0  1.5 -2.0  0.0];
-#    [ 0.0 -1.5  1.0  0.5];
-#    [ 0.0  0.5  0.0  0.0]
-# ]
-# #
-# # d2A44d = [
-# #    [ 0.0 0.0 -1.0  1.0];
-# #    [ 0.0 0.0  3.0 -2.0];
-# #    [ 0.0 0.0 -3.0  1.0];
-# #    [ 0.0 0.0  1.0  0.0]
-# # ]
-#
-# import splines
-# using splines
-# size(V)
-#
-# d = 2
-# V0 = zeros(N)
-# @time splines.eval_UC_spline_2d( a, b, orders, C, S, V0, Ad, dAd)
-#
-# V1 = zeros(N)
-# vv1 = create_function(d, "natural")
-# eval(vv1)
-# eval_UC_spline_2( a, b, orders, C, S, V1, Ad, dAd)
-# @time eval_UC_spline_2( a, b, orders, C, S, V1, Ad, dAd)
-#
-# vv1
-# vv2 = create_function(d, "none")
-# V2 = zeros(N)
-# eval(vv2)
-# eval_UC_spline_2( a, b, orders, C, S, V2, Ad, dAd)
-# @time eval_UC_spline_2( a, b, orders, C, S, V2, Ad, dAd)
-# # create_function(2, "none")
-# V2 - V1
-#
-# V2 - V0
-#
-# V1 - V0
-# maximum(S)
-# minimum(S)
-#
-#
-# vv1

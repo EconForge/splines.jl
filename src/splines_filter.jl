@@ -1,29 +1,33 @@
-function filter_coeffs(smin::Vector{Float64}, smax::Vector{Float64}, orders::Vector{Int64}, data::Array{Float64})
+function filter_coeffs(a::Vector{Float64}, b::Vector{Float64}, orders::Vector{Int64}, data::Array{Float64})
 
-    dinv = (smax - smin)./(orders.-1)
-    d = length(smin)
+    dinv = (b - a)./(orders.-1)
+    d = length(a)
     if d == 1
         coeffs = filter_coeffs_1d(dinv,data)
     elseif d == 2
         coeffs = filter_coeffs_2d(dinv,data)
     elseif d == 3
         coeffs = filter_coeffs_3d(dinv,data)
+    elseif d == 4
+        coeffs = filter_coeffs_4d(dinv,data)
     else
         error()
     end
     return coeffs
 end
 
-function ff(smin::Vector{Float64}, smax::Vector{Float64}, orders::Vector{Int64}, data::Array{Float64})
+function ff(a::Vector{Float64}, b::Vector{Float64}, orders::Vector{Int64}, data::Array{Float64})
 
-    dinv = (smax - smin)./(orders.-1)
-    d = length(smin)
+    dinv = (b - a)./(orders.-1)
+    d = length(a)
     if d == 1
         coeffs = filter_coeffs_1d(dinv,data)
     elseif d == 2
         coeffs = filter_coeffs_2d(dinv,data)
     elseif d == 3
         coeffs = filter_coeffs_3d(dinv,data)
+    elseif d == 4
+        coeffs = filter_coeffs_4d(dinv,data)
     else
         error()
     end
@@ -134,6 +138,60 @@ function filter_coeffs_3d(dinv, data)
     for ix in 1:Nx
         for iy in 1:Ny
             coefs[ix,iy,:] = find_coefs_1d(dinv[3], Mz, coefs[ix,iy,:])
+        end
+    end
+
+    return coefs
+
+end
+
+function filter_coeffs_4d(dinv, data)
+
+    Mx = size(data,1)
+    My = size(data,2)
+    Mz = size(data,3)
+    Mz4 = size(data,4)
+
+    Nx = Mx+2
+    Ny = My+2
+    Nz = Mz+2
+    Nz4 = Mz4+2
+
+    coefs = zeros(Nx,Ny,Nz,Nz4)
+
+
+    # First, solve in the X-direction
+    for iy in 1:My
+        for iz in 1:Mz
+            for iz4 in 1:Mz4
+                coefs[:,iy+1,iz+1,iz4+1] = find_coefs_1d(dinv[1], Mx, data[:,iy,iz,iz4])
+            end
+        end
+    end
+
+    # Now, solve in the Y-direction
+    for ix in 1:Nx
+        for iz in 1:Mz
+            for iz4 in 1:Mz4
+                coefs[ix,:,iz+1,iz4+1] = find_coefs_1d(dinv[2], My, coefs[ix,:,iz+1,iz4+1])
+            end
+        end
+    end
+
+    # Now, solve in the Z-direction
+    for ix in 1:Nx
+        for iy in 1:Ny
+            for iz4 in 1:Mz4
+                coefs[ix,iy,:,iz4+1] = find_coefs_1d(dinv[3], Mz, coefs[ix,iy,:,iz4+1])
+            end
+        end
+    end
+    # Now, solve in the Z4-direction
+    for ix in 1:Nx
+        for iy in 1:Ny
+            for iz in 1:Mz
+                coefs[ix,iy,iz,:] = find_coefs_1d(dinv[4], Mz, coefs[ix,iy,iz,:])
+            end
         end
     end
 

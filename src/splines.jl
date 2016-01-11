@@ -5,19 +5,19 @@ module splines
     include("csplines.jl")
     include("splines_filter.jl")
 
-function interpolant_cspline(smin, smax, orders, V)
+function interpolant_cspline(a, b, orders, V)
 
-    coefs = filter_coeffs(smin, smax, orders, V)
+    coefs = filter_coeffs(a, b, orders, V)
 
     function fun(s::Array{Float64,2})
-        return eval_UC_spline(smin, smax, orders, coefs, s)
+        return eval_UC_spline(a, b, orders, coefs, s)
     end
 
     function fun(p::Float64...)
         return fun([p...]')
     end
-    
-    return fun 
+
+    return fun
 
 end
 

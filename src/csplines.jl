@@ -64,13 +64,12 @@ function eval_UC_spline_G(a, b, orders, C, S)
 
 end
 
+# problem with this approach: the functions don't get cached.
+
 for d = 1:4
-    println("Generating function ", d)
     eval(create_function(d,"natural"))
 end
 
-
 for d = 1:4
-    println("Generating function with gradients", d)
     eval(create_function_with_gradient(d,"natural"))
 end
