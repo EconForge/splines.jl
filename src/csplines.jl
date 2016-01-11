@@ -1,20 +1,20 @@
 include("macros.jl")
 
-A44d = [
+Ad = [
    [-1.0/6.0  3.0/6.0 -3.0/6.0 1.0/6.0];
    [ 3.0/6.0 -6.0/6.0  0.0/6.0 4.0/6.0];
    [-3.0/6.0  3.0/6.0  3.0/6.0 1.0/6.0];
    [ 1.0/6.0  0.0/6.0  0.0/6.0 0.0/6.0]
 ]
 
-dA44d = [
+dAd = [
    [ 0.0 -0.5  1.0 -0.5];
    [ 0.0  1.5 -2.0  0.0];
    [ 0.0 -1.5  1.0  0.5];
    [ 0.0  0.5  0.0  0.0]
 ]
 
-d2A44d = [
+d2Ad = [
    [ 0.0 0.0 -1.0  1.0];
    [ 0.0 0.0  3.0 -2.0];
    [ 0.0 0.0 -3.0  1.0];
@@ -27,17 +27,7 @@ function eval_UC_spline(smin, smax, orders, C, S)
     N = size(S,1)
 
     vals = zeros(N)
-
-    if d == 1
-        eval_UC_spline_1d(smin, smax, orders, C, S, vals, A44d, dA44d)
-    elseif d == 2
-        eval_UC_spline_2d(smin, smax, orders, C, S, vals, A44d, dA44d)
-    elseif d == 3
-        eval_UC_spline_3d(smin, smax, orders, C, S, vals, A44d, dA44d)
-    elseif d == 4
-        eval_UC_spline_4d(smin, smax, orders, C, S, vals, A44d, dA44d)
-    end
-
+    eval_UC_spline!(smin, smax, orders, C, S, vals, Ad, dAd)
     return vals
 
 end
@@ -50,15 +40,7 @@ function eval_UC_spline_G(a, b, orders, C, S)
     vals = zeros(N)
     grad = zeros(N,d)
 
-    if d == 1
-        eval_UC_spline_1d(a, b, orders, C, S, vals, grad, A44d, dA44d)
-    elseif d == 2
-        eval_UC_spline_2d(a, b, orders, C, S, vals, grad, A44d, dA44d)
-    elseif d == 3
-        eval_UC_spline_3d(a, b, orders, C, S, vals, grad, A44d, dA44d)
-    elseif d == 4
-        eval_UC_spline_4d(a, b, orders, C, S, vals, grad, A44d, dA44d)
-    end
+    eval_UC_spline_G!(a, b, orders, C, S, vals, grad, Ad, dAd)
 
     return (vals, grad)
 
@@ -66,10 +48,32 @@ end
 
 # problem with this approach: the functions don't get cached.
 
-for d = 1:4
-    eval(create_function(d,"natural"))
+# fun = (create_function(1,"natural"))
+# fun.args[2].args[2]
+# fun.args[2].args[2]
+#
+# for d = 1:4
+#     eval(create_function(d,"natural"))
+# end
+#
+# for d = 1:4
+#     eval(create_function_with_gradient(d,"natural"))
+# end
+
+# with this approach functions don't get cached either (yet)
+# but it's cleaner
+
+@generated function eval_UC_spline!(a, b, orders, C, S, V, Ad, dAd)
+    d = C.parameters[2]
+    # the speed penalty of extrapolating points when iterating over point
+    # seems very small so this is the default
+    fun = (create_function(d,"natural"))
+    return fun.args[2].args[2]
 end
 
-for d = 1:4
-    eval(create_function_with_gradient(d,"natural"))
+
+@generated function eval_UC_spline_G!(a, b, orders, C, S, V, dV, Ad, dAd)
+    d = C.parameters[2]
+    fun = (create_function_with_gradient(d,"natural"))
+    return fun.args[2].args[2]
 end

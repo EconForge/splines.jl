@@ -11,7 +11,7 @@ f(x) = sin(x*10)
 # 1d test
 a = linspace(0,1,orders[1])
 b = f(a)
-
+b
 di = 1
 M = length(a)
 
@@ -25,11 +25,11 @@ s = copy(s'')
 interp_values = eval_UC_spline(smin,smax,orders,coefs,s)
 val, grad = eval_UC_spline_G(smin,smax,orders,coefs,s)
 
-print(size(val))
-print(size(grad))
 
 
-#interp_values,dint = eval_UC_spline_G(smin,smax,orders,coefs,s)
+interp_values = eval_UC_spline(smin,smax,orders,coefs,s)
+val, grad = eval_UC_spline_G(smin,smax,orders,coefs,s)
+
 
 fun = interpolant_cspline(smin,smax,orders,b)
 vals = fun(s)
