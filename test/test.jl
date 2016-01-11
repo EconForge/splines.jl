@@ -47,6 +47,14 @@ true_values = f(s)
 println("Maximum interpolation error : ", norm(true_values-interp_values,Inf))
 toc()
 
+
+# Test multi splines:
+
+CC = zeros(2,size(coefs,1))
+CC[1,:] = coefs   # first spline
+CC[2,:] = coefs/2   # second spline
+interp_multi_values = eval_UC_multi_spline(smin,smax,orders,CC,s)
+
 #using PyPlot
 #plot(s,sol)
 #plot(s,true_values)

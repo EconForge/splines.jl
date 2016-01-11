@@ -46,6 +46,17 @@ function eval_UC_spline_G(a, b, orders, C, S)
 
 end
 
+function eval_UC_multi_spline(a, b, orders, C, S)
+
+    d = size(S,2)
+    N = size(S,1)
+    K = size(C,1) # number of splines to evaluate
+    vals = zeros(K,N)
+    eval_UC_multi_spline!(a, b, orders, C, S, vals, Ad, dAd)
+    return vals
+
+end
+
 # problem with this approach: the functions don't get cached.
 
 # fun = (create_function(1,"natural"))
@@ -75,5 +86,13 @@ end
 @generated function eval_UC_spline_G!(a, b, orders, C, S, V, dV, Ad, dAd)
     d = C.parameters[2]
     fun = (create_function_with_gradient(d,"natural"))
+    return fun.args[2].args[2]
+end
+
+@generated function eval_UC_multi_spline!(a, b, orders, C, S, V, Ad, dAd)
+    d = C.parameters[2]-1 # first dimension of C indexes the splines
+    # the speed penalty of extrapolating points when iterating over point
+    # seems very small so this is the default
+    fun = (create_function_multi_spline(d,"natural"))
     return fun.args[2].args[2]
 end
