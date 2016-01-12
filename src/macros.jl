@@ -1,3 +1,24 @@
+Ad = [
+   [-1.0/6.0  3.0/6.0 -3.0/6.0 1.0/6.0];
+   [ 3.0/6.0 -6.0/6.0  0.0/6.0 4.0/6.0];
+   [-3.0/6.0  3.0/6.0  3.0/6.0 1.0/6.0];
+   [ 1.0/6.0  0.0/6.0  0.0/6.0 0.0/6.0]
+]
+
+dAd = [
+   [ 0.0 -0.5  1.0 -0.5];
+   [ 0.0  1.5 -2.0  0.0];
+   [ 0.0 -1.5  1.0  0.5];
+   [ 0.0  0.5  0.0  0.0]
+]
+
+d2Ad = [
+   [ 0.0 0.0 -1.0  1.0];
+   [ 0.0 0.0  3.0 -2.0];
+   [ 0.0 0.0 -3.0  1.0];
+   [ 0.0 0.0  1.0  0.0]
+]
+
 U(s,i) = Symbol(string(s,i))
 U(s,i,j) = Symbol(string(s,i,"_",j))
 
@@ -11,17 +32,17 @@ function create_Phi(d, extrap, diff)
         rhs_3 = U("tp", i,3)
         if extrap == "none"
             for j=1:4
-                eq = :($(U("Phi_",i,j)) = (Ad[$j,1]*$rhs_1 + Ad[$j,2]*$rhs_2 + Ad[$j,3]*$rhs_3 + Ad[$j,4]*$rhs_4) )
+                eq = :($(U("Phi_",i,j)) = ($(Ad[j,1])*$rhs_1 + $(Ad[j,2])*$rhs_2 + $(Ad[j,3])*$rhs_3 + $(Ad[j,4])*$rhs_4) )
                 push!(lines,eq)
             end
         elseif extrap == "natural"
             block = quote
                 if $(U("t",i))<0
-                    $( [ :($(U("Phi_",i,j)) = (dAd[$j,4]*$rhs_3 + Ad[$j,4]) ) for j=1:4 ]...)
+                    $( [ :($(U("Phi_",i,j)) = ($(dAd[j,4])*$rhs_3 + $(Ad[j,4])) ) for j=1:4 ]...)
                 elseif $(U("t",i))>1
-                    $( [ :($(U("Phi_",i,j)) = (3*Ad[$j,1] + 2*Ad[$j,2] + Ad[$j,3])*($rhs_3-1) + (Ad[$j,1]+Ad[$j,2]+Ad[$j,3]+Ad[$j,4]) ) for j=1:4 ]...)
+                    $( [ :($(U("Phi_",i,j)) = (3*$(Ad[j,1]) + 2*$(Ad[j,2]) + $(Ad[j,3]))*($rhs_3-1) + ($(Ad[j,1])+$(Ad[j,2])+$(Ad[j,3])+$(Ad[j,4])) ) for j=1:4 ]...)
                 else
-                    $( [ :($(U("Phi_",i,j)) = (Ad[$j,1]*$rhs_1 + Ad[$j,2]*$rhs_2 + Ad[$j,3]*$rhs_3 + Ad[$j,4]*$rhs_4) ) for j=1:4 ]...)
+                    $( [ :($(U("Phi_",i,j)) = ($(Ad[j,1])*$rhs_1 + $(Ad[j,2])*$rhs_2 + $(Ad[j,3])*$rhs_3 + $(Ad[j,4])*$rhs_4) ) for j=1:4 ]...)
                 end
             end
             # for l in block.args
@@ -29,7 +50,7 @@ function create_Phi(d, extrap, diff)
         end
         if diff
             for j=1:4
-                eq = :($(U("dPhi_",i,j)) = (dAd[$j,1]*$rhs_1 + dAd[$j,2]*$rhs_2 + dAd[$j,3]*$rhs_3 + dAd[$j,3]*$rhs_4 )*$(U("dinv",i)) )
+                eq = :($(U("dPhi_",i,j)) = ($(dAd[j,1])*$rhs_1 + $(dAd[j,2])*$rhs_2 + $(dAd[j,3])*$rhs_3 + $(dAd[j,3])*$rhs_4 )*$(U("dinv",i)) )
                 push!(lines,eq)
             end
         end
@@ -110,13 +131,13 @@ function create_function(d,extrap="natural")
         function $(Symbol(string("eval_UC_spline_",d,"d")))( a, b, orders, C, S, V, Ad, dAd)
             $(create_parameters(d)...)
             N = size(S,1)
-            @fastmath @inbounds @simd( # doesn't seem to make any difference
+            # @fastmath @inbounds @simd( # doesn't seem to make any difference
             for n=1:N
                 $(create_local_parameters(d)...)
                 $(create_Phi(d,extrap,false)...)
                 V[n] = $( tensor_prod([string("Phi_",i) for i=1:d], Int64[]) )
             end
-            )
+            # )
         end
     end
     return expr
@@ -137,14 +158,14 @@ function create_function_with_gradient(d,extrap="natural")
         function $(Symbol(string("eval_UC_spline_",d,"d")))( a, b, orders, C, S, V, dV, Ad, dAd)
             $(create_parameters(d)...)
             N = size(S,1)
-            @fastmath @inbounds @simd( # doesn't seem to make any difference
+            # @fastmath @inbounds @simd( # doesn't seem to make any difference
             for n=1:N
                 $(create_local_parameters(d)...)
                 $(create_Phi(d,extrap,true)...)
                 V[n] = $(tensor_prod([string("Phi_",i) for i=1:d], Int64[]))
                 $([     :( dV[n,$j] = $(tensor_prod(grad_allocs[j], Int64[])) )    for j=1:d]...)
             end
-            )
+            # )
         end
     end
     return expr
