@@ -15,7 +15,7 @@ using Interpolations
 itp = interpolate(A, BSpline(Quadratic(Reflect())), OnGrid())
 
 # what is the fastest way to operate on a list of points ?
-LB = [copy(slice(B,i,:)) for i=1:size(B,1)]
+LB = Vector{Float64}[copy(slice(B,i,:)) for i=1:size(B,1)]
 
 
 
@@ -24,7 +24,7 @@ function evaluate(itp, LB)
     s = 0.0
     for i=1:size(LB,1)
         I = LB[i]
-        s += itp[I...]
+        s += itp[I[1],I[2],I[3]]
     end
     return s
 end
@@ -33,7 +33,7 @@ total_2 = evaluate(itp, LB)
 
 println("interpolations.jl (quadratic)")
 @time total_2 = evaluate(itp, LB)
-
+exit()
 
 
 # splines.jl
